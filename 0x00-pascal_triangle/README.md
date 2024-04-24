@@ -1,0 +1,1 @@
+Pascas triangle
