@@ -3,6 +3,7 @@
 Pascals triangle
 """
 
+
 def pascal_triangle(n):
     """
     Returns a list of lists representing the Pascal Triangle of n
@@ -13,19 +14,20 @@ def pascal_triangle(n):
     if n <= 0:
         return triangle
     
-    triangle.append([1])  # First row
+    triangle.append([1])
 
     for i in range(1, n):
-        row = [1]  # First element of each row is always 1
+        row = [1]
         prev_row = triangle[i - 1]
 
         for j in range(len(prev_row) - 1):
             row.append(prev_row[j] + prev_row[j + 1])
 
-        row.append(1)  # Last element of each row is always 1
+        row.append(1)
         triangle.append(row)
 
     return triangle
+
 
 def print_triangle(triangle):
     """
@@ -33,6 +35,7 @@ def print_triangle(triangle):
     """
     for row in triangle:
         print("[{}]".format(", ".join(map(str, row))))
+
 
 if __name__ == "__main__":
     n = 5
