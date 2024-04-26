@@ -3,26 +3,26 @@
 Pascals triangle
 """
 
-def pascal_triangle(n):
-    if n <= 0:
-        return []
-
+def generate_pascal_triangle(num_rows):
     triangle = [[1]]
-    for i in range(1, n):
+
+    for _ in range(1, num_rows):
         row = [1]
-        for j in range(1, i):
-            row.append(triangle[i-1][j-1] + triangle[i-1][j])
+        prev_row = triangle[-1]
+
+        for j in range(1, len(prev_row)):
+            row.append(prev_row[j - 1] + prev_row[j])
+
         row.append(1)
         triangle.append(row)
 
     return triangle
 
 def print_triangle(triangle):
-    """
-    Print the triangle
-    """
     for row in triangle:
-        print("[{}]".format(",".join([str(x) for x in row])))
+        print("[{}]".format(",".join(map(str, row))))
 
 if __name__ == "__main__":
-    print_triangle(pascal_triangle(5))
+    num_rows = 5
+    triangle = generate_pascal_triangle(num_rows)
+    print_triangle(triangle)
