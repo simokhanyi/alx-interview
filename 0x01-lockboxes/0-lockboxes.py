@@ -5,19 +5,22 @@ Lockboxes function
 
 
 def canUnlockAll(boxes):
-    def dfs(box_index, keys):
-        visited.add(box_index)
-        for key in boxes[box_index]:
-            if key not in visited:
-                keys.add(key)
-                dfs(key, keys)
+    """
+    Function to check if all boxes can be unlocked.
+    """
+    if type(boxes) is not list or len(boxes) == 0:
+        return False
 
-    n = len(boxes)
-    visited = set()
-    keys = {0}  # The first box is always unlocked
-    dfs(0, keys)
+    num_boxes = len(boxes)
+    unlocked = {0}  # Start with the first box unlocked
 
-    return len(keys) == n
+    # Iterate over a copy of the set to avoid modifying it during iteration
+    for key in unlocked.copy():
+        for box in boxes[key]:
+            if 0 <= box < num_boxes and box not in unlocked:
+                unlocked.add(box)
+
+    return len(unlocked) == num_boxes
 
 
 # Test cases
