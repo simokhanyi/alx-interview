@@ -13,57 +13,62 @@
 const request = require('request');
 const process = require('process');
 
-// Ensure the correct number of arguments are provided
-if (process.argv.length !== 3) {
-    console.log("Usage: ./0-starwars_characters.js <movie_id>");
-    process.exit(1);
+/**
+ * Wrapper function for request object that allows it
+ * to work with async and await.
+ * 
+ * @param   {String} url - The URL to request.
+ * @returns {Promise}    - A promise that resolves with parsed JSON response,
+ *                         and rejects with the request error.
+ */
+function makeRequest(url) {
+  return new Promise((resolve, reject) => {
+    request.get(url, (error, response, body) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(JSON.parse(body));
+      }
+    });
+  });
 }
-
-const movieId = process.argv[2];
-const baseUrl = "https://swapi-api.alx-tools.com/api/films/";
 
 /**
- * Fetch and print the names of all characters in a specified Star Wars movie.
- * 
- * @param {string} movieId - The ID of the Star Wars movie.
+ * Entry point - makes requests to Star Wars API
+ * for movie info based on the movie ID passed as a CLI parameter.
+ * Retrieves movie character info then prints their names
+ * in order of appearance in the initial response.
  */
-function getMovieCharacters(movieId) {
-    const url = `${baseUrl}${movieId}/`;
+async function main() {
+  const args = process.argv;
 
-    // Fetch movie details from the Star Wars API
-    request(url, (error, response, body) => {
-        if (error) {
-            console.error(`Failed to fetch data for movie ID ${movieId}:`, error);
-            return;
-        }
+  if (args.length !== 3) {
+    console.log("Usage: ./0-starwars_characters.js <movie_id>");
+    return;
+  }
 
-        if (response.statusCode !== 200) {
-            console.error(`Failed to fetch data for movie ID ${movieId}: Status Code ${response.statusCode}`);
-            return;
-        }
+  const movieId = args[2];
+  const movieUrl = `https://swapi-api.alx-tools.com/api/films/${movieId}/`;
 
-        // Parse the JSON response
-        const movieData = JSON.parse(body);
-        const characterUrls = movieData.characters;
+  try {
+    const movie = await makeRequest(movieUrl);
 
-        // Fetch and print each character name
-        characterUrls.forEach(characterUrl => {
-            request(characterUrl, (error, response, body) => {
-                if (error) {
-                    console.error(`Failed to fetch character data from ${characterUrl}:`, error);
-                    return;
-                }
+    if (!movie.characters) {
+      console.error('No characters found for this movie.');
+      return;
+    }
 
-                if (response.statusCode === 200) {
-                    const characterData = JSON.parse(body);
-                    console.log(characterData.name);
-                } else {
-                    console.error(`Failed to fetch character data from ${characterUrl}: Status Code ${response.statusCode}`);
-                }
-            });
-        });
-    });
+    for (const characterUrl of movie.characters) {
+      try {
+        const character = await makeRequest(characterUrl);
+        console.log(character.name);
+      } catch (error) {
+        console.error(`Failed to fetch character data from ${characterUrl}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error(`Failed to fetch data for movie ID ${movieId}:`, error);
+  }
 }
 
-// Call the function with the provided movie ID
-getMovieCharacters(movieId);
+main();
